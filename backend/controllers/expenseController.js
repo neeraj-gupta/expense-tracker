@@ -1,6 +1,5 @@
 const Expense = require('../models/Expense');
 const User = require('../models/User');
-const mongoose = require('mongoose');
 
 exports.createExpense = async (req, res) => {
     try {
@@ -32,7 +31,7 @@ exports.getAllExpenses = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        const expenses = await Expense.find({ user: req.user.id });
+        const expenses = await Expense.find({ user: req.user.id }).sort({ date: -1 });
         res.status(200).json({ message: 'Expenses fetched successfully', expenses });
     } catch (error) {
         console.error(error);

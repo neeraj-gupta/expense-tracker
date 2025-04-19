@@ -1,6 +1,8 @@
 const Income = require('../models/Income');
 const User = require('../models/User');
 
+const xlsx = require('xlsx');
+
 exports.getAllIncome = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
@@ -10,7 +12,7 @@ exports.getAllIncome = async (req, res) => {
             });
         }
 
-        const incomes = await Income.find({ user: user._id });
+        const incomes = await Income.find({ user: user._id }).sort({ date: -1 });
         res.status(200).json({
             message: 'Incomes fetched successfully',
             incomes
@@ -68,10 +70,20 @@ exports.downloadIncomeToExcel = async (req, res) => {
         }
 
         const incomes = await Income.find({ user: user._id });
-        res.status(200).json({
-            message: 'Incomes fetched successfully',
-            incomes
-        });
+        // Prepare data for Excel export
+        const incomeData = incomes.map(income => ({
+            Date: income.date.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+            Source: income.source,
+            Amount: income.amount,
+        }));
+
+        // Export to Excel logic here
+        const wb = xlsx.utils.book_new();
+        const ws = xlsx.utils.json_to_sheet(incomeData);
+        xlsx.utils.book_append_sheet(wb, ws, 'Incomes');
+        xlsx.writeFile(wb, 'incomes.xlsx');
+
+        res.download('income.xlsx');
     } catch (error) {
         console.error(error);
         res.status(500).json({

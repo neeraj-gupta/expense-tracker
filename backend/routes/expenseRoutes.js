@@ -4,8 +4,8 @@ const {
     getAllExpenses,
     updateExpense,
     deleteExpense
-} = require('../controllers/expenseController.js');
-const { authenticated } = require('../middleware/authMiddleware.js');
+} = require('../controllers/expenseController');
+const { authenticated } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
