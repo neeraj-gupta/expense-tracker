@@ -16,7 +16,7 @@ export const API_PATHS = {
     UPDATE: `/api/v1/expense/update/:id`,
   },
   Image: {
-    UPLOAD: `/api/v1/image/upload`,
+    UPLOAD: `/api/v1/auth/upload`,
   },
   INCOME: {
     GET_ALL: `/api/v1/income/all`,

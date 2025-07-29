@@ -129,3 +129,41 @@ exports.getUserInfo = async (req, res) => {
         });
     }
 }
+
+exports.updateUserInfo = async (req, res) => {
+    const {
+        fullName,
+        email,
+        profileImageUrl
+    } = req.body;
+
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: 'User not found'
+            });
+        }
+
+        user.fullName = fullName || user.fullName;
+        user.email = email || user.email;
+        user.profileImageUrl = profileImageUrl || user.profileImageUrl;
+
+        await user.save();
+
+        res.status(200).json({
+            user: {
+                _id: user._id,
+                fullName: user.fullName,
+                email: user.email,
+                profileImageUrl: user.profileImageUrl,
+            }
+        })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: 'Server error'
+        });
+    }
+}

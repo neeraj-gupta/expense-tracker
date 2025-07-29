@@ -3,7 +3,8 @@ const express = require('express');
 const {
     registerUser,
     loginUser,
-    getUserInfo
+    getUserInfo,
+    updateUserInfo
 } = require('../controllers/authController.js');
 const upload = require('../middleware/uploadMiddleware.js');
 const { authenticated } = require('../middleware/authMiddleware.js');
@@ -13,6 +14,7 @@ const router = express.Router();
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/user-info', authenticated, getUserInfo);
+router.put('/update-profile', authenticated, updateUserInfo);
 
 router.post('/upload', upload.single('image'), (req, res) => {
     if (!req.file) {
@@ -24,7 +26,6 @@ router.post('/upload', upload.single('image'), (req, res) => {
     // Do something with the uploaded file
     const imageUrl = `${req.protocol}://${req.get('host')}/${req.file.path}`;
 
-    console.log('Image URL:', imageUrl);
     res.status(200).json({
         imageUrl
     });

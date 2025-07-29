@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useContext,useState } from "react";
 import AuthLayout from "../../components/layouts/AuthLayout";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Input from "../../components/Inputs/Input";
 import { Link } from "react-router-dom";
 import { validateEmail } from "../../utils/helper";
 import ProfilePhotoSelector from "../../components/Inputs/ProfilePhotoSelector";
+import axiosInstance from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPaths";
+import { UserContext } from "../../context/UserContext";
+import uploadImage from "../../utils/uploadImage";
 
 const SignUp = () => {
   const [fullName, setFullName] = useState("");
@@ -13,7 +17,9 @@ const SignUp = () => {
   const [profilePic, setProfilePic] = useState(null);
   const [error, setError] = useState(null);
 
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
+
+  const { updateUser } = useContext(UserContext);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -35,7 +41,35 @@ const SignUp = () => {
 
     setError(null);
 
-    // Simulate an API call
+    // Sign up API call
+    try {
+      // uplaod image if any
+      let imageUrl = null;  
+      if (profilePic) {
+        const imageRes = await uploadImage(profilePic);
+        imageUrl = imageRes.imageUrl;
+      }
+      const response = await axiosInstance.post(API_PATHS.AUTH.SIGNUP, {
+        fullName,
+        email,
+        password,
+        profileImageUrl: imageUrl
+      });
+
+      const { token, user } = response.data;
+      if (token) {
+        localStorage.setItem("token", token);
+        updateUser(user); // Assuming you have a function to update user context
+        navigate("/dashboard"); // Redirect to dashboard after successful signup
+      }
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        setError(error.response.data.message);
+      
+      } else {
+        setError("An error occurred. Please try again later.");
+      } 
+    }
   };
 
   return (
